@@ -1,7 +1,6 @@
 [package]
 name = "bitgateway"
 version.workspace = true
-authors.workspace = true
 edition.workspace = true
 description = "A desktop client for the BIT SRUN gateway"
 readme = "../../README.md"
@@ -32,24 +31,20 @@ depends = [
   "xdg-utils"
 ]
 
-[package.metadata.generate-rpm]
-assets = [
-  {
-    source = "target/release/bitgateway",
-    dest = "/usr/bin/bitgateway",
-    mode = "755"
-  },
-  {
-    source = "assets/bitgateway.desktop",
-    dest = "/usr/share/applications/bitgateway.desktop",
-    mode = "644"
-  },
-  {
-    source = "assets/icons/icon.png",
-    dest = "/usr/share/icons/hicolor/256x256/apps/bitgateway.png",
-    mode = "644"
-  },
-]
+[[package.metadata.generate-rpm.assets]]
+source = "target/release/bitgateway"
+dest = "/usr/bin/bitgateway"
+mode = "755"
+
+[[package.metadata.generate-rpm.assets]]
+source = "assets/bitgateway.desktop"
+dest = "/usr/share/applications/bitgateway.desktop"
+mode = "644"
+
+[[package.metadata.generate-rpm.assets]]
+source = "assets/icons/icon.png"
+dest = "/usr/share/icons/hicolor/256x256/apps/bitgateway.png"
+mode = "644"
 
 [package.metadata.generate-rpm.requires]
 libxkbcommon = "*"
