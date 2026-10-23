@@ -113,7 +113,8 @@ impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Started { silent } => {
-                // Native tray icons must be created on the running UI event loop.
+                // Native tray icons must be created on the running UI event
+                // loop.
                 match tray::create() {
                     Ok(tray) => self.tray = Some(tray),
                     Err(error) => {
@@ -143,8 +144,9 @@ impl App {
                 self.overlay = None;
 
                 return if self.tray.is_some() {
-                    // Wayland cannot hide an existing window. Keep the daemon and
-                    // session alive, and recreate the window on tray activation.
+                    // Wayland cannot hide an existing window. Keep the daemon
+                    // and session alive, and recreate the window on tray
+                    // activation.
                     window::close(id)
                 } else {
                     iced::exit()
