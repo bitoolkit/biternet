@@ -22,6 +22,9 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
       mkPackage =
         pkgs:
+        let
+          desktopLibraries = import ./nix/desktop-libraries.nix { inherit pkgs; };
+        in
         pkgs.rustPlatform.buildRustPackage {
           pname = packageCargoToml.package.name;
           inherit (workspaceCargoToml.workspace.package) version;
@@ -43,40 +46,20 @@
           ];
 
           nativeBuildInputs = with pkgs; [
-            copyDesktopItems
+            makeWrapper
             pkg-config
-            wrapGAppsHook3
           ];
 
-          buildInputs = with pkgs; [
-            glib-networking
-            gtk3
-            libayatana-appindicator
-            openssl
-            webkitgtk_4_1
-            xdotool
-          ];
-
-          desktopItems = [
-            (pkgs.makeDesktopItem {
-              name = "bitgateway";
-              desktopName = "BITGATEWAY";
-              comment = packageCargoToml.package.description;
-              exec = "bitgateway";
-              icon = "bitgateway";
-              categories = [ "Network" ];
-            })
-          ];
+          buildInputs = desktopLibraries;
 
           postInstall = ''
             install -Dm644 crates/bitgateway/assets/icons/icon.png \
               $out/share/icons/hicolor/256x256/apps/bitgateway.png
-          '';
-
-          preFixup = ''
-            gappsWrapperArgs+=(
-              --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath [ pkgs.libayatana-appindicator ]}
-            )
+            install -Dm644 crates/bitgateway/assets/bitgateway.desktop \
+              $out/share/applications/bitgateway.desktop
+            wrapProgram "$out/bin/bitgateway" \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.xdg-utils ]} \
+              --prefix LD_LIBRARY_PATH : "/run/opengl-driver/lib:${pkgs.lib.makeLibraryPath desktopLibraries}"
           '';
 
           meta = {

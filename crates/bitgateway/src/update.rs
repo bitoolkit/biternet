@@ -6,13 +6,13 @@ use serde::Deserialize;
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/so1ve/bitgateway/releases/latest";
 const USER_AGENT: &str = concat!("BITGATEWAY/", env!("CARGO_PKG_VERSION"));
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct UpdateInfo {
     pub version: String,
     pub html_url: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Deserialize)]
 struct GithubRelease {
     tag_name: String,
     html_url: String,
@@ -37,6 +37,7 @@ pub async fn check_for_update() -> Result<Option<UpdateInfo>> {
     let Some(latest_version) = parse_release_version(&release.tag_name) else {
         return Ok(None);
     };
+
     let current_version = Version::parse(env!("CARGO_PKG_VERSION")).context("解析当前版本失败")?;
 
     if latest_version <= current_version {

@@ -31,13 +31,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
-            libglib2.0-dev \
-            libwebkit2gtk-4.1-dev \
-            libgtk-3-dev \
-            libayatana-appindicator3-dev \
-            libxdo-dev \
-            librsvg2-dev \
-            patchelf
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libegl1-mesa-dev \
+            libvulkan-dev
 
       - name: Run release-plz release
         id: release-plz
@@ -106,29 +107,20 @@ jobs:
         include:
           - name: linux-x86_64
             os: ubuntu-22.04
-            platform: linux
-            package_types: >-
-              --package-types appimage
-              --package-types deb
-              --package-types rpm
+            formats: appimage,deb
             asset_globs: |
               dist/*.AppImage
               dist/*.deb
               dist/*.rpm
           - name: macos
             os: macos-latest
-            platform: macos
-            package_types: >-
-              --package-types macos
-              --package-types dmg
-              --package-types updater
+            formats: app,dmg
             asset_globs: |
               dist/*.dmg
               dist/*.app.tar.gz
           - name: windows-x86_64
             os: windows-latest
-            platform: windows
-            package_types: --package-types nsis
+            formats: nsis
             asset_globs: |
               dist/*-setup.exe
               dist/*-portable.exe
@@ -148,11 +140,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
-            libglib2.0-dev \
-            libwebkit2gtk-4.1-dev \
-            libgtk-3-dev \
-            libayatana-appindicator3-dev \
-            libxdo-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libegl1-mesa-dev \
+            libvulkan-dev \
             libfuse2 \
             librsvg2-dev \
             patchelf
@@ -165,28 +160,33 @@ jobs:
         with:
           version: "1.18.1"
 
-      - name: Install Dioxus CLI from source
-        if: runner.os == 'Linux'
-        run: cargo binstall dioxus-cli@0.7.6 --no-confirm --locked --strategies compile
+      - name: Install desktop packager
+        run: cargo binstall cargo-packager@0.11.8 --no-confirm --locked
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Install Dioxus CLI
-        if: runner.os != 'Linux'
-        run: cargo binstall dioxus-cli@0.7.6 --no-confirm --locked
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Build desktop app
+        run: cargo build --release --package bitgateway --locked
 
       - name: Bundle desktop app
-        working-directory: crates/bitgateway
-        run: dx bundle --release --platform ${{ matrix.platform }} ${{ matrix.package_types }} --locked
+        run: cargo packager --release -p bitgateway --formats ${{ matrix.formats }}
+
+      - name: Add Linux RPM package
+        if: runner.os == 'Linux'
+        run: |
+          cargo binstall cargo-generate-rpm --no-confirm --locked
+          cargo generate-rpm -p crates/bitgateway -o dist
+
+      - name: Add macOS portable archive
+        if: runner.os == 'macOS'
+        run: tar -czf dist/BITGATEWAY.app.tar.gz -C dist BITGATEWAY.app
 
       - name: Add Windows portable app
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $dist = Join-Path "${{ github.workspace }}" "dist"
-          $portable = Join-Path "${{ github.workspace }}" "target/dx/bitgateway/bundle/windows/bitgateway.exe"
+          $portable = Join-Path "${{ github.workspace }}" "target/release/bitgateway.exe"
 
           if (!(Test-Path $portable)) {
             throw "Windows portable executable not found: $portable"

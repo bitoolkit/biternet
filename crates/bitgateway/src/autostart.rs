@@ -31,6 +31,7 @@ fn build_auto_launch(silent_start: bool) -> AutoLaunch {
 
 pub fn sync(settings: &Settings) -> Result<()> {
     let launcher = build_auto_launch(settings.silent_start);
+
     if settings.auto_start {
         launcher.enable().context("注册开机自动启动失败")?;
     } else {

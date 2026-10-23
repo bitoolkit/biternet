@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=BITGATEWAY
+Comment=A desktop client for the BIT SRUN gateway
+Exec=bitgateway
+Icon=bitgateway
+Categories=Network;
+Terminal=false

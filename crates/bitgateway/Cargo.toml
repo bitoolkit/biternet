@@ -1,27 +1,83 @@
 [package]
 name = "bitgateway"
-description = "A desktop client for the BIT SRUN gateway"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-license.workspace = true
-repository.workspace = true
+description = "A desktop client for the BIT SRUN gateway"
 readme = "../../README.md"
+repository.workspace = true
+license.workspace = true
 keywords = ["bit", "srun"]
 categories = ["gui"]
+
+[package.metadata.packager]
+product-name = "BITGATEWAY"
+identifier = "dev.so1ve.bitgateway"
+publisher = "Ray"
+category = "Utility"
+icons = ["assets/icons/icon.png", "assets/icons/icon.ico"]
+out-dir = "../../dist"
+
+[package.metadata.packager.deb]
+depends = [
+  "libxkbcommon0",
+  "libwayland-client0",
+  "libx11-6",
+  "libxcursor1",
+  "libxi6",
+  "libxrandr2",
+  "libegl1",
+  "libvulkan1",
+  "fontconfig",
+  "xdg-utils"
+]
+
+[package.metadata.generate-rpm]
+assets = [
+  {
+    source = "target/release/bitgateway",
+    dest = "/usr/bin/bitgateway",
+    mode = "755"
+  },
+  {
+    source = "assets/bitgateway.desktop",
+    dest = "/usr/share/applications/bitgateway.desktop",
+    mode = "644"
+  },
+  {
+    source = "assets/icons/icon.png",
+    dest = "/usr/share/icons/hicolor/256x256/apps/bitgateway.png",
+    mode = "644"
+  },
+]
+
+[package.metadata.generate-rpm.requires]
+libxkbcommon = "*"
+wayland = "*"
+libX11 = "*"
+libXcursor = "*"
+libXi = "*"
+libXrandr = "*"
+mesa-libEGL = "*"
+vulkan-loader = "*"
+fontconfig = "*"
+xdg-utils = "*"
 
 [dependencies]
 anyhow.workspace = true
 auto-launch.workspace = true
 bitgateway-client.workspace = true
 directories.workspace = true
-dioxus.workspace = true
+iced.workspace = true
+image.workspace = true
+open.workspace = true
 reqwest.workspace = true
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 single-instance.workspace = true
 tokio.workspace = true
+tray-icon.workspace = true
 
 [lints]
 workspace = true

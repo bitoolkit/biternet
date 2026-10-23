@@ -11,53 +11,91 @@ use crate::utils::{format_balance, format_flux, humanize_duration};
 const CHECK_TIMEOUT: Duration = Duration::from_secs(8);
 const LOGIN_TIMEOUT: Duration = Duration::from_secs(10);
 const LOGOUT_TIMEOUT: Duration = Duration::from_secs(10);
+const LOGIN_CONFIRM_ATTEMPTS: usize = 8;
+const LOGIN_CONFIRM_DELAY: Duration = Duration::from_millis(500);
+
 static CLIENT: LazyLock<Client> = LazyLock::new(Client::new);
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum SessionSnapshot {
+#[derive(Clone, Debug)]
+pub enum LoginStatus {
     Online(OnlineInfo),
     Offline(String),
 }
 
-pub async fn check_status() -> Result<SessionSnapshot> {
-    let client = &*CLIENT;
-    let state = with_timeout(CHECK_TIMEOUT, "登录状态检查超时", async move {
-        client.get_login_state().await.context("获取登录状态失败")
+pub async fn check_status() -> Result<LoginStatus> {
+    let state = with_timeout(CHECK_TIMEOUT, "登录状态检查超时", async {
+        CLIENT.get_login_state().await.context("获取登录状态失败")
     })
     .await?;
 
     Ok(state.into())
 }
 
-pub async fn login(username: String, password: String) -> Result<()> {
-    let client = &*CLIENT;
-    let response = with_timeout(LOGIN_TIMEOUT, "登录请求超时", async move {
-        client
+pub async fn login(username: String, password: String) -> Result<OnlineInfo> {
+    let result = with_timeout(LOGIN_TIMEOUT, "登录请求超时", async move {
+        CLIENT
             .login(&username, &password)
             .await
             .context("登录请求失败")
     })
-    .await?;
+    .await
+    .and_then(|response| check_response(response, "登录失败"));
 
-    if portal_success(&response) {
-        return Ok(());
+    if let Err(error) = result {
+        return match check_status().await {
+            Ok(LoginStatus::Online(info)) => Ok(info),
+            _ => Err(error),
+        };
     }
 
-    bail!(portal_error_message(&response, "登录失败"));
+    let mut status = check_status().await;
+
+    for _ in 1..LOGIN_CONFIRM_ATTEMPTS {
+        if matches!(&status, Ok(LoginStatus::Online(_))) {
+            break;
+        }
+
+        tokio::time::sleep(LOGIN_CONFIRM_DELAY).await;
+        status = check_status().await;
+    }
+
+    match status? {
+        LoginStatus::Online(info) => Ok(info),
+        LoginStatus::Offline(message) => bail!(message),
+    }
 }
 
 pub async fn logout(username: String) -> Result<()> {
-    let client = &*CLIENT;
-    let response = with_timeout(LOGOUT_TIMEOUT, "注销请求超时", async move {
-        client.logout(&username).await.context("注销请求失败")
+    let result = with_timeout(LOGOUT_TIMEOUT, "注销请求超时", async move {
+        CLIENT.logout(&username).await.context("注销请求失败")
     })
-    .await?;
+    .await
+    .and_then(|response| check_response(response, "注销失败"));
 
-    if portal_success(&response) {
+    if let Err(error) = result {
+        return match check_status().await {
+            Ok(LoginStatus::Offline(_)) => Ok(()),
+            _ => Err(error),
+        };
+    }
+
+    Ok(())
+}
+
+fn check_response(response: PortalResponse, fallback: &str) -> Result<()> {
+    if response.error == "ok" || response.suc_msg.is_some() {
         return Ok(());
     }
 
-    bail!(portal_error_message(&response, "注销失败"));
+    let message = if !response.error_msg.trim().is_empty() {
+        response.error_msg
+    } else if !response.error.trim().is_empty() {
+        response.error
+    } else {
+        fallback.to_string()
+    };
+
+    bail!(message)
 }
 
 async fn with_timeout<T>(
@@ -70,11 +108,12 @@ async fn with_timeout<T>(
         .context(message)?
 }
 
-impl From<LoginState> for SessionSnapshot {
+impl From<LoginState> for LoginStatus {
     fn from(state: LoginState) -> Self {
-        let success =
+        let online =
             state.error == "ok" || state.user_name.is_some() || state.sum_seconds.is_some();
-        if success {
+
+        if online {
             return Self::Online(OnlineInfo {
                 username: state.user_name.unwrap_or("未知用户".to_string()),
                 ip: state.online_ip.to_string(),
@@ -94,19 +133,4 @@ impl From<LoginState> for SessionSnapshot {
 
         Self::Offline(message)
     }
-}
-
-fn portal_success(response: &PortalResponse) -> bool {
-    response.error == "ok" || response.suc_msg.is_some()
-}
-
-fn portal_error_message(response: &PortalResponse, fallback: &str) -> String {
-    if !response.error_msg.trim().is_empty() {
-        return response.error_msg.clone();
-    }
-    if !response.error.trim().is_empty() {
-        return response.error.clone();
-    }
-
-    fallback.to_string()
 }

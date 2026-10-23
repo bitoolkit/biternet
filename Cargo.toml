@@ -6,26 +6,43 @@ members = ["crates/*"]
 version = "0.1.7"
 authors = ["Ray <i@mk1.io>"]
 edition = "2024"
-license = "MIT"
 repository = "https://github.com/so1ve/bitgateway"
+license = "MIT"
 
 [workspace.dependencies]
 anyhow = "1"
 auto-launch = "0.6"
 base64 = "0.22"
+bitgateway-client = { path = "crates/bitgateway-client", version = "0.1.7" }
 bon = "3.9"
-bitgateway-client = { version = "0.1.7", path = "crates/bitgateway-client" }
 directories = "6"
-dioxus = { version = "0.7", features = ["desktop"] }
 hmac = "0.12"
+iced = {
+  version = "0.14",
+  default-features = false,
+  features = [
+    "advanced-shaping",
+    "tokio",
+    "wayland",
+    "wgpu",
+    "x11"
+  ]
+}
+image = { version = "0.25", default-features = false, features = ["png"] }
 md-5 = "0.10"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+open = "5"
+reqwest = {
+  version = "0.12",
+  default-features = false,
+  features = ["json", "rustls-tls"]
+}
 semver = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha1 = "0.10"
 single-instance = "0.3"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "time"] }
+tray-icon = { version = "0.26", default-features = false, features = ["ksni"] }
 
 [workspace.lints.clippy]
 all = "warn"
@@ -55,13 +72,13 @@ use_self = "warn"
 verbose_file_reads = "warn"
 wildcard_imports = "warn"
 
-[profile.release]
-opt-level = 2
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true
-
 [profile.dev]
 opt-level = 0
 debug = true
+
+[profile.release]
+opt-level = 2
+strip = true
+lto = true
+panic = "abort"
+codegen-units = 1

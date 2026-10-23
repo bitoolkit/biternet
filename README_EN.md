@@ -5,105 +5,63 @@
 [![CI](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
-A simple desktop app for logging in to and out of the BIT campus network gateway (10.0.0.55). Built with Dioxus.
+A desktop client for the BIT campus network. Log in, log out, and view your IP address, data usage, online time, and account balance. The gateway address is `10.0.0.55`.
 
-## Download
+Built with Rust and Iced for Windows, macOS, and Linux.
 
-### Prebuilt binaries
+## Installation
 
-Download the latest version from [GitHub Releases](../../releases).
+### Download a release
 
-On startup, the app checks the latest GitHub Release. If a newer version is available, it prompts you to open the download page; it will not download or install updates automatically.
+Download an installer or portable version for your system from [GitHub Releases](https://github.com/so1ve/bitgateway/releases).
 
-### Install with Cargo
+Linux requires a desktop with system tray support (StatusNotifierItem), graphics drivers, and fonts with Chinese glyphs.
 
-If Rust is already installed, you can install the app directly from crates.io:
+### Cargo
+
+With Rust installed, run:
 
 ```sh
 cargo install bitgateway
 ```
 
-On Linux, installing with Cargo still requires the Dioxus Desktop dependencies listed below.
+On Linux, install the [build dependencies](#linux-dependencies) first.
 
-### Build from source
+### Nix
 
-Install Rust nightly. The repository's `rust-toolchain.toml` will automatically select the pinned toolchain:
-
-```sh
-rustup toolchain install nightly
-```
-
-On Linux, install the Dioxus Desktop dependencies first:
-
-```sh
-sudo apt-get update
-sudo apt-get install -y \
-  pkg-config \
-  libglib2.0-dev \
-  libwebkit2gtk-4.1-dev \
-  libgtk-3-dev \
-  libayatana-appindicator3-dev \
-  libxdo-dev \
-  libfuse2 \
-  librsvg2-dev \
-  patchelf
-```
-
-Clone the repository and run the app:
-
-```sh
-git clone https://github.com/so1ve/bitgateway.git
-cd bitgateway
-cargo run -p bitgateway
-```
-
-To produce a desktop bundle, it's recommended to install `cargo-binstall` and use it to install the Dioxus CLI. Dioxus 0.7 desktop bundling needs an explicit platform and package type; otherwise `--out-dir` may only create an empty directory:
-
-```sh
-cargo binstall dioxus-cli@0.7.6 --locked # or use cargo install
-cd crates/bitgateway
-
-# Windows: create a portable exe
-cargo build --release -p bitgateway --locked
-# Output: target/release/bitgateway.exe
-
-# Windows: create an NSIS installer
-dx bundle --release --platform windows --package-types nsis --locked
-
-# macOS: create a DMG and .app.tar.gz
-dx bundle --release --platform macos \
-  --package-types macos \
-  --package-types dmg \
-  --package-types updater \
-  --locked
-
-# Linux: create AppImage, deb, and rpm packages
-dx bundle --release --platform linux \
-  --package-types appimage \
-  --package-types deb \
-  --package-types rpm \
-  --locked
-```
-
-`Dioxus.toml` is configured to place release bundles in the repository-level `dist/` directory. Dioxus' `updater` package type creates the macOS `.app.tar.gz` archive from the `.app` bundle. The Windows installer does not embed the WebView2 offline runtime, keeping the installer small; systems without WebView2 Runtime need to install it first.
-
-For platform-specific details, see the [official Dioxus documentation](https://dioxuslabs.com/).
-
-### Install with Nix
-
-Run directly:
+Run directly on Linux:
 
 ```sh
 nix run github:so1ve/bitgateway
 ```
 
-Add BITGATEWAY to your flake inputs:
+See [NixOS and Home Manager](#nixos-and-home-manager) for startup configuration.
+
+## Usage
+
+The interface is in Chinese.
+
+Connect to the BIT campus network, then enter your student ID and unified authentication password to log in. Use Tab to switch between input fields and Enter to submit. Once logged in, you can view your connection details or log out.
+
+Automatic login also enables password saving. The app then attempts to log in whenever it detects that you are logged out. Logging out manually pauses automatic login.
+
+Saved usernames and passwords are stored in plain text in the local `credentials.json` file. Turning off password saving clears the saved credentials.
+
+Open Settings (“设置”) to enable startup at login (“开机启动”). You can then hide the window on startup (“启动时隐藏窗口”) to show only the tray icon. You can also pass `--silent` when launching the app manually.
+
+Use the close button in the top right or press Esc to close the window. The app keeps running in the tray. Choose “显示窗口” from the tray menu to reopen it, or “退出程序” to quit. Quit from the tray before replacing the app with a newer version.
+
+The app checks GitHub Releases on startup. When an update is available, click “有更新” at the bottom of the window to open the download options.
+
+## NixOS and Home Manager
+
+Add this flake input:
 
 ```nix
 inputs.bitgateway.url = "github:so1ve/bitgateway";
 ```
 
-NixOS can import the module directly:
+NixOS configuration:
 
 ```nix
 { inputs, ... }:
@@ -119,7 +77,7 @@ NixOS can import the module directly:
 }
 ```
 
-Home Manager:
+Home Manager configuration:
 
 ```nix
 { inputs, ... }:
@@ -135,7 +93,9 @@ Home Manager:
 }
 ```
 
-Cachix:
+`autoStart` starts the app with your graphical session. With `autoStart` enabled, `silentStart` shows only the tray icon. The modules manage startup through a systemd user service. Change these options in your Nix configuration.
+
+Optional Cachix cache configuration:
 
 ```nix
 nix.settings = {
@@ -146,14 +106,74 @@ nix.settings = {
 };
 ```
 
-## Recommended IDE setup
+## Run from source
 
-- [VS Code](https://code.visualstudio.com/) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+Install rustup first. The repository selects Rust nightly through `rust-toolchain.toml`. On Linux, install the [build dependencies](#linux-dependencies) first.
+
+```sh
+git clone https://github.com/so1ve/bitgateway.git
+cd bitgateway
+rustup toolchain install nightly
+cargo run -p bitgateway
+```
+
+### Linux dependencies
+
+On Debian / Ubuntu:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y \
+  pkg-config \
+  libwayland-dev \
+  libxkbcommon-dev \
+  libx11-dev \
+  libxcursor-dev \
+  libxi-dev \
+  libxrandr-dev \
+  libegl1-mesa-dev \
+  libvulkan-dev \
+  fontconfig \
+  fonts-noto-cjk \
+  xdg-utils
+```
+
+## Packaging
+
+Run these commands from the repository root. Install the packager and build a release binary:
+
+```sh
+cargo install cargo-packager --version 0.11.8 --locked
+cargo build --release -p bitgateway --locked
+```
+
+Choose the command for your current system:
+
+| System | Format | Command |
+| --- | --- | --- |
+| Windows | NSIS installer | `cargo packager --release -p bitgateway --formats nsis` |
+| macOS | .app, DMG | `cargo packager --release -p bitgateway --formats app,dmg` |
+| Linux | AppImage, deb | `cargo packager --release -p bitgateway --formats appimage,deb` |
+
+Linux packaging also requires:
+
+```sh
+sudo apt-get install -y librsvg2-dev patchelf libfuse2
+```
+
+To create an RPM package, install the additional tool:
+
+```sh
+cargo install cargo-generate-rpm --locked
+cargo generate-rpm -p crates/bitgateway -o dist
+```
+
+Packages are written to `dist/`. The Windows portable executable is at `target/release/bitgateway.exe`.
 
 ## Acknowledgements
 
-`bitgateway-client` is implemented with reference to [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs).
+The protocol implementation in `bitgateway-client` is based on [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs).
 
-## License
+## LICENSE
 
 [MIT](./LICENSE). Made with ❤️ by [Ray](https://github.com/so1ve)

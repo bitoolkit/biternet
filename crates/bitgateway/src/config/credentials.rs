@@ -6,7 +6,7 @@ use super::config_path;
 
 const CREDENTIALS_FILE: &str = "credentials.json";
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 pub struct Credentials {
     pub username: String,
     pub password: String,
@@ -22,12 +22,15 @@ impl Credentials {
 
 pub fn load() -> Credentials {
     let path = config_path(CREDENTIALS_FILE);
+
     if !path.exists() {
         return Credentials::default();
     }
 
     let content = fs::read_to_string(path).unwrap();
+
     let mut credentials: Credentials = serde_json::from_str(&content).unwrap();
+
     if !credentials.remember_password {
         credentials.password.clear();
         credentials.auto_login = false;
@@ -47,6 +50,7 @@ pub fn save(credentials: &Credentials) {
     };
 
     let path = config_path(CREDENTIALS_FILE);
+
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).unwrap();
     }

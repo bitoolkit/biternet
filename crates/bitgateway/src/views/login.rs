@@ -1,132 +1,64 @@
-use dioxus::prelude::*;
+use iced::widget::{button, checkbox, column, row, space, text, text_input};
+use iced::{Alignment, Element, Fill};
 
-use crate::auth::{self, SessionState};
-use crate::components::{AppButton, ButtonVariant, PageTitle, ToastHandle};
-use crate::config::{self, Credentials};
-use crate::state::SessionPhase;
+use crate::app::{App, Message};
+use crate::state::Session;
+use crate::theme::{self, MUTED};
 
-#[component]
-pub fn LoginView(
-    mut credentials: Signal<Credentials>,
-    session_state: SessionState,
-    toast: ToastHandle,
-    on_settings: EventHandler<MouseEvent>,
-) -> Element {
-    let current = credentials.read().clone();
-    let phase = session_state.phase();
-    let busy = session_state.is_busy();
-    let button_label = match phase {
-        SessionPhase::LoggingIn { automatic: true } => "自动登录中...",
-        SessionPhase::LoggingIn { automatic: false } => "登录中...",
+pub fn view(app: &App) -> Element<'_, Message> {
+    let editable = app.overlay.is_none() && !app.session.is_busy();
+    let username = text_input("学号或用户名", &app.credentials.username)
+        .on_input_maybe(editable.then_some(Message::UsernameChanged))
+        .on_submit_maybe(app.can_login().then_some(Message::Login))
+        .size(14)
+        .padding([8, 10])
+        .style(theme::input);
+
+    let password = text_input("统一认证密码", &app.credentials.password)
+        .secure(true)
+        .on_input_maybe(editable.then_some(Message::PasswordChanged))
+        .on_submit_maybe(app.can_login().then_some(Message::Login))
+        .size(14)
+        .padding([8, 10])
+        .style(theme::input);
+
+    let remember = checkbox(app.credentials.remember_password)
+        .label("记住密码")
+        .on_toggle_maybe(editable.then_some(Message::RememberPasswordChanged))
+        .size(15)
+        .spacing(7)
+        .text_size(12)
+        .style(theme::checkmark);
+
+    let automatic = checkbox(app.credentials.auto_login)
+        .label("自动登录")
+        .on_toggle_maybe(editable.then_some(Message::AutoLoginChanged))
+        .size(15)
+        .spacing(7)
+        .text_size(12)
+        .style(theme::checkmark);
+
+    let label = match app.session {
+        Session::Initializing => "正在检查连接…",
+        Session::LoggingIn { automatic: true } => "自动登录中…",
+        Session::LoggingIn { automatic: false } => "登录中…",
         _ => "登录",
     };
 
-    rsx! {
-        section {
-            class: "flex min-h-full flex-col gap-3.5",
-            PageTitle {
-                title: "登录",
-                on_settings,
-            }
-
-            div {
-                class: "grid gap-[7px]",
-                label {
-                    class: "text-xs font-medium text-[#444]",
-                    r#for: "username",
-                    "用户名 / 学号"
-                }
-                input {
-                    id: "username",
-                    class: "w-full min-w-0 border border-[#cfcfcf] bg-white px-2.5 py-[9px] text-[#222] outline-0 transition-colors duration-100 focus:border-[#777] rounded-[2px]",
-                    autocomplete: "username",
-                    disabled: busy,
-                    initial_value: "{current.username}",
-                    placeholder: "学号",
-                    oninput: move |event| {
-                        credentials.with_mut(|stored| stored.username = event.value());
-                    },
-                }
-
-                label {
-                    class: "text-xs font-medium text-[#444]",
-                    r#for: "password",
-                    "密码"
-                }
-                input {
-                    id: "password",
-                    class: "w-full min-w-0 border border-[#cfcfcf] bg-white px-2.5 py-[9px] text-[#222] outline-0 transition-colors duration-100 focus:border-[#777] rounded-[2px]",
-                    r#type: "password",
-                    autocomplete: "current-password",
-                    disabled: busy,
-                    initial_value: "{current.password}",
-                    placeholder: "请输入统一认证密码",
-                    oninput: move |event| {
-                        credentials.with_mut(|stored| stored.password = event.value());
-                    },
-                }
-            }
-
-            div {
-                class: "grid grid-cols-2 gap-2.5",
-                label {
-                    class: "flex min-w-0 cursor-pointer items-center gap-2 text-[13px] text-[#333]",
-                    input {
-                        r#type: "checkbox",
-                        class: "accent-[#555]",
-                        disabled: busy,
-                        checked: current.remember_password,
-                        onchange: move |event| {
-                            let checked = event.checked();
-                            credentials.with_mut(|stored| {
-                                stored.remember_password = checked;
-                                if !checked {
-                                    stored.auto_login = false;
-                                }
-                            });
-                            persist_preference(credentials);
-                        },
-                    }
-                    span { "记住密码" }
-                }
-
-                label {
-                    class: "flex min-w-0 cursor-pointer items-center gap-2 text-[13px] text-[#333]",
-                    input {
-                        r#type: "checkbox",
-                        class: "accent-[#555]",
-                        disabled: busy,
-                        checked: current.auto_login,
-                        onchange: move |event| {
-                            let checked = event.checked();
-                            credentials.with_mut(|stored| {
-                                stored.auto_login = checked;
-                                if checked {
-                                    stored.remember_password = true;
-                                }
-                            });
-                            persist_preference(credentials);
-                        },
-                    }
-                    span { "自动登录" }
-                }
-            }
-
-            AppButton {
-                label: button_label,
-                disabled: busy || !current.can_login(),
-                variant: ButtonVariant::Primary,
-                onclick: move |_| {
-                    spawn(async move {
-                        auth::submit_login(credentials, session_state, toast, false).await;
-                    });
-                },
-            }
-        }
-    }
-}
-
-fn persist_preference(credentials: Signal<Credentials>) {
-    let current = credentials.read().clone();
-    config::credentials::save(&current);
+    column![
+        column![text("用户名").size(12).color(MUTED), username].spacing(5),
+        space().height(12),
+        column![text("密码").size(12).color(MUTED), password].spacing(5),
+        space().height(12),
+        row![remember, space::horizontal(), automatic].align_y(Alignment::Center),
+        space::vertical(),
+        button(text(label).height(Fill).width(Fill).center())
+            .on_press_maybe(app.can_login().then_some(Message::Login))
+            .style(theme::primary_button)
+            .width(Fill)
+            .height(34)
+            .padding(0),
+    ]
+    .height(Fill)
+    .into()
 }

@@ -1,18 +1,39 @@
-use dioxus::prelude::*;
+use iced::widget::{button, row, space, text};
+use iced::{Alignment, Element, Fill};
 
-const REPOSITORY_URL: &str = "https://github.com/so1ve/bitgateway";
+use crate::app::{App, Message, Overlay};
+use crate::theme::{self, MUTED};
 
-#[component]
-pub fn AppFooter(version: String) -> Element {
-    rsx! {
-        footer {
-            class: "absolute bottom-0 left-0 right-0 border-t border-[#ddd] bg-[#f7f7f7] text-center text-[11px] font-medium tracking-[0.04em]",
-            a {
-                href: REPOSITORY_URL,
-                class: "block px-3 py-1.5 text-[#666] no-underline transition-colors duration-100 hover:text-[#222] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-[-2px] focus-visible:outline-[#777]",
-                title: "打开 so1ve/bitgateway 项目仓库",
-                "BITGATEWAY v{version}"
-            }
-        }
+pub fn view(app: &App) -> Element<'_, Message> {
+    let enabled = app.overlay.is_none();
+    let mut line = row![
+        button(
+            text(concat!("BITGATEWAY v", env!("CARGO_PKG_VERSION")))
+                .size(11)
+                .height(Fill)
+                .center(),
+        )
+        .on_press_maybe(enabled.then_some(Message::OpenRepository))
+        .style(|_, _| button::Style {
+            text_color: MUTED,
+            ..Default::default()
+        })
+        .height(24)
+        .padding(0),
+        space::horizontal(),
+    ]
+    .height(24)
+    .align_y(Alignment::Center);
+
+    if app.update_info.is_some() {
+        line = line.push(
+            button(text("有更新 ↗").size(11).height(Fill).center())
+                .on_press_maybe(enabled.then_some(Message::OverlayOpened(Some(Overlay::Update))))
+                .style(theme::update_button)
+                .height(24)
+                .padding([0, 8]),
+        );
     }
+
+    line.into()
 }

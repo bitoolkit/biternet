@@ -5,105 +5,61 @@
 [![CI](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
-一个简单的 BIT 校园网（10.0.0.55）登录/登出桌面应用。使用 Dioxus 构建。
+BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、已用时长和账户余额。网关地址为 `10.0.0.55`。
 
-## 下载
+使用 Rust 和 Iced 开发，支持 Windows、macOS 和 Linux。
 
-### 预编译二进制文件
+## 安装
 
-从 [GitHub Releases](../../releases) 下载最新版本。
+### 下载安装包
 
-应用启动时会检查最新 GitHub Release；如果发现新版本，会提示你打开下载页面，不会自动下载或安装。
+从 [GitHub Releases](https://github.com/so1ve/bitgateway/releases) 下载对应系统的安装包或便携版。
 
-### 使用 Cargo 安装
+Linux 桌面需支持系统托盘（StatusNotifierItem），并安装图形驱动和中文字体。
 
-如果已经安装 Rust，也可以直接从 crates.io 安装：
+### Cargo
+
+安装 Rust 后运行：
 
 ```sh
 cargo install bitgateway
 ```
 
-Linux 上通过 Cargo 安装时仍需要先安装下方的 Dioxus Desktop 依赖。
+Linux 用户需先安装[编译依赖](#linux-依赖)。
 
-### 从源码编译
+### Nix
 
-准备 Rust nightly（仓库中的 `rust-toolchain.toml` 会自动选择工具链）：
-
-```sh
-rustup toolchain install nightly
-```
-
-Linux 需要额外安装 Dioxus Desktop 依赖：
-
-```sh
-sudo apt-get update
-sudo apt-get install -y \
-  pkg-config \
-  libglib2.0-dev \
-  libwebkit2gtk-4.1-dev \
-  libgtk-3-dev \
-  libayatana-appindicator3-dev \
-  libxdo-dev \
-  libfuse2 \
-  librsvg2-dev \
-  patchelf
-```
-
-克隆仓库并运行：
-
-```sh
-git clone https://github.com/so1ve/bitgateway.git
-cd bitgateway
-cargo run -p bitgateway
-```
-
-如果需要生成桌面安装包，建议先安装 `cargo-binstall`，再用它安装 Dioxus CLI。Dioxus 0.7 的桌面打包需要显式指定平台和安装包格式，否则 `--out-dir` 可能只创建空目录：
-
-```sh
-cargo binstall dioxus-cli@0.7.6 --locked # 或者用 cargo install
-cd crates/bitgateway
-
-# Windows：生成 portable exe
-cargo build --release -p bitgateway --locked
-# 产物：target/release/bitgateway.exe
-
-# Windows：生成 NSIS 安装包
-dx bundle --release --platform windows --package-types nsis --locked
-
-# macOS：生成 DMG 和 .app.tar.gz
-dx bundle --release --platform macos \
-  --package-types macos \
-  --package-types dmg \
-  --package-types updater \
-  --locked
-
-# Linux：生成 AppImage、deb 和 rpm
-dx bundle --release --platform linux \
-  --package-types appimage \
-  --package-types deb \
-  --package-types rpm \
-  --locked
-```
-
-`Dioxus.toml` 已配置输出目录为仓库根目录的 `dist/`。Dioxus 的 `updater` package type 会为 macOS `.app` 生成 `.app.tar.gz`。Windows 安装包不会内置 WebView2 离线运行时，因此体积较小；如果目标系统缺少 WebView2 Runtime，需要先安装它。
-
-更多平台相关说明请参考 [Dioxus 官方文档](https://dioxuslabs.com/)。
-
-### 使用 Nix
-
-直接运行：
+在 Linux 上直接运行：
 
 ```sh
 nix run github:so1ve/bitgateway
 ```
 
-在 flake inputs 中加入 BITGATEWAY：
+自动启动配置见 [NixOS 与 Home Manager](#nixos-与-home-manager)。
+
+## 使用
+
+连接 BIT 校园网后，输入学号和统一认证密码登录。可用 Tab 切换输入框，按 Enter 提交。登录后可查看上网信息或注销。
+
+“自动登录”会同时启用“记住密码”，并在检测到未登录时尝试登录。手动注销会暂停自动登录。
+
+“记住密码”会将用户名和密码以明文保存在本机的 `credentials.json` 中。取消勾选会清除已保存的凭据。
+
+在“设置”中开启“开机启动”后，可选“启动时隐藏窗口”，让下次启动只显示托盘。手动启动时也可传入 `--silent`。
+
+点击右上角的关闭按钮或按 Esc 可关闭窗口，应用仍在托盘运行。通过托盘菜单的“显示窗口”重新打开，选择“退出程序”结束运行。更新程序前也需先从托盘退出。
+
+应用启动时会检查 GitHub Releases，发现新版本后在底部显示“有更新”。
+
+## NixOS 与 Home Manager
+
+在 flake inputs 中添加：
 
 ```nix
 inputs.bitgateway.url = "github:so1ve/bitgateway";
 ```
 
-NixOS 可以直接导入模块：
+NixOS 配置：
 
 ```nix
 { inputs, ... }:
@@ -119,7 +75,7 @@ NixOS 可以直接导入模块：
 }
 ```
 
-Home Manager：
+Home Manager 配置：
 
 ```nix
 { inputs, ... }:
@@ -135,7 +91,9 @@ Home Manager：
 }
 ```
 
-Cachix：
+`autoStart` 随图形会话启动应用。启用后，`silentStart` 可让应用只显示托盘。模块通过 systemd 用户服务管理启动，请在 Nix 配置中修改这些选项。
+
+可选的 Cachix 缓存配置：
 
 ```nix
 nix.settings = {
@@ -146,14 +104,74 @@ nix.settings = {
 };
 ```
 
-## 推荐的 IDE 设置
+## 从源码运行
 
-- [VS Code](https://code.visualstudio.com/) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+需安装 rustup。仓库通过 `rust-toolchain.toml` 选择 Rust nightly。Linux 用户需先安装[编译依赖](#linux-依赖)。
+
+```sh
+git clone https://github.com/so1ve/bitgateway.git
+cd bitgateway
+rustup toolchain install nightly
+cargo run -p bitgateway
+```
+
+### Linux 依赖
+
+在 Debian / Ubuntu 上安装：
+
+```sh
+sudo apt-get update
+sudo apt-get install -y \
+  pkg-config \
+  libwayland-dev \
+  libxkbcommon-dev \
+  libx11-dev \
+  libxcursor-dev \
+  libxi-dev \
+  libxrandr-dev \
+  libegl1-mesa-dev \
+  libvulkan-dev \
+  fontconfig \
+  fonts-noto-cjk \
+  xdg-utils
+```
+
+## 打包
+
+以下命令均在仓库根目录执行。先安装打包工具并构建发布版本：
+
+```sh
+cargo install cargo-packager --version 0.11.8 --locked
+cargo build --release -p bitgateway --locked
+```
+
+按当前系统选择打包命令：
+
+| 系统 | 格式 | 命令 |
+| --- | --- | --- |
+| Windows | NSIS 安装包 | `cargo packager --release -p bitgateway --formats nsis` |
+| macOS | .app、DMG | `cargo packager --release -p bitgateway --formats app,dmg` |
+| Linux | AppImage、deb | `cargo packager --release -p bitgateway --formats appimage,deb` |
+
+Linux 打包还需安装：
+
+```sh
+sudo apt-get install -y librsvg2-dev patchelf libfuse2
+```
+
+生成 RPM 包需另装工具：
+
+```sh
+cargo install cargo-generate-rpm --locked
+cargo generate-rpm -p crates/bitgateway -o dist
+```
+
+安装包输出到 `dist/`。Windows 便携程序位于 `target/release/bitgateway.exe`。
 
 ## 致谢
 
-参考 [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs) 实现了 `bitgateway-client`。
+`bitgateway-client` 的协议实现参考了 [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs)。
 
-## License
+## LICENSE
 
 [MIT](./LICENSE). Made with ❤️ by [Ray](https://github.com/so1ve)
