@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/so1ve/bitgateway/compare/bitgateway-v0.1.7...bitgateway-v0.2.0) - 2026-10-23
+
+### Added
+
+- [**breaking**] rewrite with Iced
+
+### Other
+
+- fix toml v1.0 compatibility and remove outdated `authors` field
+- apply automatic fixes
+
 ## [0.1.7](https://github.com/so1ve/bitgateway/compare/bitgateway-v0.1.6...bitgateway-v0.1.7) - 2026-08-31
 
 ### Fixed
