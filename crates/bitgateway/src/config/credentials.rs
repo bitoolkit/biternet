@@ -7,6 +7,7 @@ use super::config_path;
 const CREDENTIALS_FILE: &str = "credentials.json";
 
 #[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(default)]
 pub struct Credentials {
     pub username: String,
     pub password: String,

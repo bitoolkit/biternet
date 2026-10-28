@@ -7,6 +7,7 @@ use super::config_path;
 const SETTINGS_FILE: &str = "settings.json";
 
 #[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(default)]
 pub struct Settings {
     pub auto_start: bool,
     pub silent_start: bool,
