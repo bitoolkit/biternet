@@ -2,7 +2,7 @@
 
 简体中文 | [English](./README_EN.md)
 
-[![CI](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml)
+[![CI](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
 BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、已用时长和账户余额。网关地址为 `10.0.0.55`。
@@ -13,7 +13,7 @@ BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、�
 
 ### 下载安装包
 
-从 [GitHub Releases](https://github.com/so1ve/bitgateway/releases) 下载对应系统的安装包或便携版。
+从 [GitHub Releases](https://github.com/bitoolkit/bitgateway/releases) 下载对应系统的安装包或便携版。
 
 Linux 桌面需支持系统托盘（StatusNotifierItem），并安装图形驱动和中文字体。
 
@@ -32,7 +32,7 @@ Linux 用户需先安装[编译依赖](#linux-依赖)。
 在 Linux 上直接运行：
 
 ```sh
-nix run github:so1ve/bitgateway
+nix run github:bitoolkit/bitgateway
 ```
 
 自动启动配置见 [NixOS 与 Home Manager](#nixos-与-home-manager)。
@@ -56,7 +56,7 @@ nix run github:so1ve/bitgateway
 在 flake inputs 中添加：
 
 ```nix
-inputs.bitgateway.url = "github:so1ve/bitgateway";
+inputs.bitgateway.url = "github:bitoolkit/bitgateway";
 ```
 
 NixOS 配置：
@@ -109,7 +109,7 @@ nix.settings = {
 需安装 rustup。仓库通过 `rust-toolchain.toml` 选择 Rust nightly。Linux 用户需先安装[编译依赖](#linux-依赖)。
 
 ```sh
-git clone https://github.com/so1ve/bitgateway.git
+git clone https://github.com/bitoolkit/bitgateway.git
 cd bitgateway
 rustup toolchain install nightly
 cargo run -p bitgateway

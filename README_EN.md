@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | English
 
-[![CI](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/so1ve/bitgateway/actions/workflows/ci.yml)
+[![CI](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
 A desktop client for the BIT campus network. Log in, log out, and view your IP address, data usage, online time, and account balance. The gateway address is `10.0.0.55`.
@@ -13,7 +13,7 @@ Built with Rust and Iced for Windows, macOS, and Linux.
 
 ### Download a release
 
-Download an installer or portable version for your system from [GitHub Releases](https://github.com/so1ve/bitgateway/releases).
+Download an installer or portable version for your system from [GitHub Releases](https://github.com/bitoolkit/bitgateway/releases).
 
 Linux requires a desktop with system tray support (StatusNotifierItem), graphics drivers, and fonts with Chinese glyphs.
 
@@ -32,7 +32,7 @@ On Linux, install the [build dependencies](#linux-dependencies) first.
 Run directly on Linux:
 
 ```sh
-nix run github:so1ve/bitgateway
+nix run github:bitoolkit/bitgateway
 ```
 
 See [NixOS and Home Manager](#nixos-and-home-manager) for startup configuration.
@@ -58,7 +58,7 @@ The app checks GitHub Releases on startup. When an update is available, click �
 Add this flake input:
 
 ```nix
-inputs.bitgateway.url = "github:so1ve/bitgateway";
+inputs.bitgateway.url = "github:bitoolkit/bitgateway";
 ```
 
 NixOS configuration:
@@ -111,7 +111,7 @@ nix.settings = {
 Install rustup first. The repository selects Rust nightly through `rust-toolchain.toml`. On Linux, install the [build dependencies](#linux-dependencies) first.
 
 ```sh
-git clone https://github.com/so1ve/bitgateway.git
+git clone https://github.com/bitoolkit/bitgateway.git
 cd bitgateway
 rustup toolchain install nightly
 cargo run -p bitgateway

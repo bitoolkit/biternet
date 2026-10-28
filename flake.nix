@@ -64,7 +64,7 @@
 
           meta = {
             inherit (packageCargoToml.package) description;
-            homepage = "https://github.com/so1ve/bitgateway";
+            homepage = "https://github.com/bitoolkit/bitgateway";
             license = pkgs.lib.licenses.mit;
             mainProgram = "bitgateway";
             platforms = pkgs.lib.platforms.linux;

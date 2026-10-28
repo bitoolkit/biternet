@@ -14,7 +14,7 @@ use crate::{autostart, network, tray, update, views};
 
 const POLL_INTERVAL: Duration = Duration::from_secs(3);
 const APP_ICON: &[u8] = include_bytes!("../assets/icons/icon.png");
-const REPOSITORY_URL: &str = "https://github.com/so1ve/bitgateway";
+const REPOSITORY_URL: &str = "https://github.com/bitoolkit/bitgateway";
 
 pub struct App {
     pub credentials: Credentials,

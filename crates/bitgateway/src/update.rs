@@ -3,7 +3,7 @@ use reqwest::header::ACCEPT;
 use semver::Version;
 use serde::Deserialize;
 
-const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/so1ve/bitgateway/releases/latest";
+const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/bitoolkit/bitgateway/releases/latest";
 const USER_AGENT: &str = concat!("BITGATEWAY/", env!("CARGO_PKG_VERSION"));
 
 #[derive(Clone, Debug)]
