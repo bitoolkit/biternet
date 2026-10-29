@@ -17,7 +17,7 @@ use single_instance::SingleInstance;
 use crate::app::App;
 
 // single-instance uses a lock-file path on macOS while Linux and Windows use a
-// name.
+// name. Keep the existing lock so old and new versions cannot run together.
 const SINGLE_INSTANCE_NAME: &str = "/tmp/io.mk1.bitgateway.lock";
 
 fn main() -> iced::Result {
@@ -28,7 +28,7 @@ fn main() -> iced::Result {
     }
 
     iced::daemon(App::new, App::update, App::view)
-        .title("BITGATEWAY")
+        .title("BITERNET")
         .theme(theme::application())
         .subscription(App::subscription)
         .settings(iced::Settings {

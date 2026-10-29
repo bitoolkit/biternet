@@ -23,7 +23,7 @@ pub fn create() -> Result<TrayIcon> {
     let icon = Icon::from_rgba(image.to_vec(), image.width(), image.height()).unwrap();
 
     TrayIconBuilder::new()
-        .with_tooltip("BITGATEWAY")
+        .with_tooltip("BITERNET")
         .with_menu(Box::new(menu))
         .with_icon(icon)
         .with_menu_on_left_click(!cfg!(target_os = "macos"))

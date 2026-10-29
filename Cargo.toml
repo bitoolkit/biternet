@@ -5,14 +5,14 @@ members = ["crates/*"]
 [workspace.package]
 version = "0.2.1"
 edition = "2024"
-repository = "https://github.com/bitoolkit/bitgateway"
+repository = "https://github.com/bitoolkit/biternet"
 license = "MIT"
 
 [workspace.dependencies]
 anyhow = "1"
 auto-launch = "0.6"
 base64 = "0.22"
-bitgateway-client = { path = "crates/bitgateway-client", version = "0.2.1" }
+biternet-client = { path = "crates/biternet-client", version = "0.2.1" }
 bon = "3.9"
 directories = "6"
 hmac = "0.12"

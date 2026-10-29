@@ -1,8 +1,8 @@
-# BITGATEWAY
+# BITERNET
 
 简体中文 | [English](./README_EN.md)
 
-[![CI](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml)
+[![CI](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
 BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、已用时长和账户余额。网关地址为 `10.0.0.55`。
@@ -13,7 +13,7 @@ BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、�
 
 ### 下载安装包
 
-从 [GitHub Releases](https://github.com/bitoolkit/bitgateway/releases) 下载对应系统的安装包或便携版。
+从 [GitHub Releases](https://github.com/bitoolkit/biternet/releases) 下载对应系统的安装包或便携版。
 
 Linux 桌面需支持系统托盘（StatusNotifierItem），并安装图形驱动和中文字体。
 
@@ -22,7 +22,7 @@ Linux 桌面需支持系统托盘（StatusNotifierItem），并安装图形驱�
 安装 Rust 后运行：
 
 ```sh
-cargo install bitgateway
+cargo install biternet
 ```
 
 Linux 用户需先安装[编译依赖](#linux-依赖)。
@@ -32,7 +32,7 @@ Linux 用户需先安装[编译依赖](#linux-依赖)。
 在 Linux 上直接运行：
 
 ```sh
-nix run github:bitoolkit/bitgateway
+nix run github:bitoolkit/biternet
 ```
 
 自动启动配置见 [NixOS 与 Home Manager](#nixos-与-home-manager)。
@@ -51,12 +51,18 @@ nix run github:bitoolkit/bitgateway
 
 应用启动时会检查 GitHub Releases，发现新版本后在底部显示“有更新”。
 
+## 从 BITGATEWAY 升级
+
+应用、命令和 Cargo 包现名为 `biternet`，协议库为 `biternet-client`。新包发布后，Cargo 用户可先安装 `biternet`，确认可用后再运行 `cargo uninstall bitgateway`。启动新版前，请先从托盘退出旧版。
+
+Nix 配置请将仓库地址改为 `github:bitoolkit/biternet`，并将 `inputs.bitgateway`、`services.bitgateway` 分别改为 `inputs.biternet`、`services.biternet`。现有配置目录继续沿用，无需移动凭据或设置文件。
+
 ## NixOS 与 Home Manager
 
 在 flake inputs 中添加：
 
 ```nix
-inputs.bitgateway.url = "github:bitoolkit/bitgateway";
+inputs.biternet.url = "github:bitoolkit/biternet";
 ```
 
 NixOS 配置：
@@ -65,9 +71,9 @@ NixOS 配置：
 { inputs, ... }:
 
 {
-  imports = [ inputs.bitgateway.nixosModules.default ];
+  imports = [ inputs.biternet.nixosModules.default ];
 
-  services.bitgateway = {
+  services.biternet = {
     enable = true;
     autoStart = true;
     silentStart = true;
@@ -81,9 +87,9 @@ Home Manager 配置：
 { inputs, ... }:
 
 {
-  imports = [ inputs.bitgateway.homeManagerModules.default ];
+  imports = [ inputs.biternet.homeManagerModules.default ];
 
-  services.bitgateway = {
+  services.biternet = {
     enable = true;
     autoStart = true;
     silentStart = true;
@@ -109,10 +115,10 @@ nix.settings = {
 需安装 rustup。仓库通过 `rust-toolchain.toml` 选择 Rust nightly。Linux 用户需先安装[编译依赖](#linux-依赖)。
 
 ```sh
-git clone https://github.com/bitoolkit/bitgateway.git
-cd bitgateway
+git clone https://github.com/bitoolkit/biternet.git
+cd biternet
 rustup toolchain install nightly
-cargo run -p bitgateway
+cargo run -p biternet
 ```
 
 ### Linux 依赖
@@ -142,16 +148,16 @@ sudo apt-get install -y \
 
 ```sh
 cargo install cargo-packager --version 0.11.8 --locked
-cargo build --release -p bitgateway --locked
+cargo build --release -p biternet --locked
 ```
 
 按当前系统选择打包命令：
 
 | 系统 | 格式 | 命令 |
 | --- | --- | --- |
-| Windows | NSIS 安装包 | `cargo packager --release -p bitgateway --formats nsis` |
-| macOS | .app、DMG | `cargo packager --release -p bitgateway --formats app,dmg` |
-| Linux | AppImage、deb | `cargo packager --release -p bitgateway --formats appimage,deb` |
+| Windows | NSIS 安装包 | `cargo packager --release -p biternet --formats nsis` |
+| macOS | .app、DMG | `cargo packager --release -p biternet --formats app,dmg` |
+| Linux | AppImage、deb | `cargo packager --release -p biternet --formats appimage,deb` |
 
 Linux 打包还需安装：
 
@@ -163,14 +169,14 @@ sudo apt-get install -y librsvg2-dev patchelf libfuse2
 
 ```sh
 cargo install cargo-generate-rpm --locked
-cargo generate-rpm -p crates/bitgateway -o dist
+cargo generate-rpm -p crates/biternet -o dist
 ```
 
-安装包输出到 `dist/`。Windows 便携程序位于 `target/release/bitgateway.exe`。
+安装包输出到 `dist/`。Windows 便携程序位于 `target/release/biternet.exe`。
 
 ## 致谢
 
-`bitgateway-client` 的协议实现参考了 [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs)。
+`biternet-client` 的协议实现参考了 [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs)。
 
 ## LICENSE
 

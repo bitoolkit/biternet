@@ -7,28 +7,28 @@ self:
 }:
 
 let
-  cfg = config.services.bitgateway;
+  cfg = config.services.biternet;
 in
 {
-  options.services.bitgateway = {
-    enable = lib.mkEnableOption "BITGATEWAY desktop client";
+  options.services.biternet = {
+    enable = lib.mkEnableOption "BITERNET desktop client";
 
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      description = "The BITGATEWAY package to use.";
+      description = "The BITERNET package to use.";
     };
 
     autoStart = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Start BITGATEWAY automatically with the graphical session.";
+      description = "Start BITERNET automatically with the graphical session.";
     };
 
     silentStart = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Start BITGATEWAY with its window hidden and only the tray icon visible.";
+      description = "Start BITERNET with its window hidden and only the tray icon visible.";
     };
   };
 
@@ -41,11 +41,11 @@ in
       assertions = [
         {
           assertion = cfg.enable;
-          message = "services.bitgateway.autoStart requires services.bitgateway.enable";
+          message = "services.biternet.autoStart requires services.biternet.enable";
         }
       ];
 
-      systemd.user.services.bitgateway = {
+      systemd.user.services.biternet = {
         Unit = {
           Description = "BIT SRUN gateway client";
           After = [ "graphical-session.target" ];

@@ -13,7 +13,7 @@ jobs:
       pull-requests: read
       id-token: write
     outputs:
-      bitgateway_tag: ${{ steps.detect-bitgateway-release.outputs.tag }}
+      biternet_tag: ${{ steps.detect-biternet-release.outputs.tag }}
     concurrency:
       group: release-plz-release
       cancel-in-progress: false
@@ -48,8 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Detect bitgateway release
-        id: detect-bitgateway-release
+      - name: Detect biternet release
+        id: detect-biternet-release
         env:
           RELEASES_CREATED: ${{ steps.release-plz.outputs.releases_created }}
           RELEASES: ${{ steps.release-plz.outputs.releases }}
@@ -59,7 +59,7 @@ jobs:
             exit 0
           fi
 
-          tag="$(jq -r '.[]? | select(.package_name == "bitgateway") | .tag // empty' <<< "${RELEASES:-[]}")"
+          tag="$(jq -r '.[]? | select(.package_name == "biternet") | .tag // empty' <<< "${RELEASES:-[]}")"
 
           if [ -z "$tag" ]; then
             echo "tag=" >> "$GITHUB_OUTPUT"
@@ -71,7 +71,7 @@ jobs:
   release-plz-pr:
     name: Open release PR
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'so1ve'
+    if: github.repository_owner == 'bitoolkit'
     permissions:
       contents: write
       pull-requests: write
@@ -97,7 +97,7 @@ jobs:
   bundle-release-assets:
     name: Bundle ${{ matrix.name }}
     needs: release-plz-release
-    if: needs.release-plz-release.outputs.bitgateway_tag != ''
+    if: needs.release-plz-release.outputs.biternet_tag != ''
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -129,7 +129,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ needs.release-plz-release.outputs.bitgateway_tag }}
+          ref: ${{ needs.release-plz-release.outputs.biternet_tag }}
 
       - name: Install Rust nightly
         uses: dtolnay/rust-toolchain@nightly
@@ -166,27 +166,27 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Build desktop app
-        run: cargo build --release --package bitgateway --locked
+        run: cargo build --release --package biternet --locked
 
       - name: Bundle desktop app
-        run: cargo packager --release -p bitgateway --formats ${{ matrix.formats }}
+        run: cargo packager --release -p biternet --formats ${{ matrix.formats }}
 
       - name: Add Linux RPM package
         if: runner.os == 'Linux'
         run: |
           cargo binstall cargo-generate-rpm --no-confirm --locked
-          cargo generate-rpm -p crates/bitgateway -o dist
+          cargo generate-rpm -p crates/biternet -o dist
 
       - name: Add macOS portable archive
         if: runner.os == 'macOS'
-        run: tar -czf dist/BITGATEWAY.app.tar.gz -C dist BITGATEWAY.app
+        run: tar -czf dist/BITERNET.app.tar.gz -C dist BITERNET.app
 
       - name: Add Windows portable app
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $dist = Join-Path "${{ github.workspace }}" "dist"
-          $portable = Join-Path "${{ github.workspace }}" "target/release/bitgateway.exe"
+          $portable = Join-Path "${{ github.workspace }}" "target/release/biternet.exe"
 
           if (!(Test-Path $portable)) {
             throw "Windows portable executable not found: $portable"
@@ -222,7 +222,7 @@ jobs:
       - name: Upload bundle to release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ needs.release-plz-release.outputs.bitgateway_tag }}
+          tag_name: ${{ needs.release-plz-release.outputs.biternet_tag }}
           files: ${{ matrix.asset_globs }}
           fail_on_unmatched_files: true
           overwrite_files: true

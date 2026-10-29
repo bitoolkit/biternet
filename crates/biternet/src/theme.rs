@@ -16,7 +16,7 @@ const BORDER: Color = Color::from_rgb8(225, 232, 242);
 
 pub fn application() -> Theme {
     Theme::custom(
-        "BITGATEWAY",
+        "BITERNET",
         iced::theme::Palette {
             background: Color::from_rgb8(250, 251, 254),
             text: TEXT,

@@ -5,7 +5,9 @@ use auto_launch::{
 
 use crate::config::Settings;
 
-const APP_NAME: &str = "BITGATEWAY";
+// Keep the registration name so existing startup entries can be updated or
+// removed.
+const AUTOSTART_NAME: &str = "BITGATEWAY";
 
 fn build_auto_launch(silent_start: bool) -> AutoLaunch {
     let app_path = std::env::current_exe()
@@ -19,7 +21,7 @@ fn build_auto_launch(silent_start: bool) -> AutoLaunch {
     };
 
     AutoLaunchBuilder::new()
-        .set_app_name(APP_NAME)
+        .set_app_name(AUTOSTART_NAME)
         .set_app_path(&app_path)
         .set_args(&args)
         .set_linux_launch_mode(LinuxLaunchMode::XdgAutostart)

@@ -1,5 +1,5 @@
 [package]
-name = "bitgateway-client"
+name = "biternet-client"
 description = "A small srun client for BIT"
 version.workspace = true
 edition.workspace = true

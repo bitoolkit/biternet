@@ -14,7 +14,7 @@ use crate::{autostart, network, tray, update, views};
 
 const POLL_INTERVAL: Duration = Duration::from_secs(3);
 const APP_ICON: &[u8] = include_bytes!("../assets/icons/icon.png");
-const REPOSITORY_URL: &str = "https://github.com/bitoolkit/bitgateway";
+const REPOSITORY_URL: &str = "https://github.com/bitoolkit/biternet";
 
 pub struct App {
     pub credentials: Credentials,
@@ -122,6 +122,14 @@ impl App {
 
                         return Task::batch([notice, self.show_window()]);
                     }
+                }
+
+                if self.settings.auto_start
+                    && let Err(error) = autostart::sync(&self.settings)
+                {
+                    let notice = self.show_notice("无法更新开机启动项", Some(error.to_string()));
+
+                    return Task::batch([notice, self.show_window()]);
                 }
 
                 if !silent {

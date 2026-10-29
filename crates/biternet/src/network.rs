@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
-use bitgateway_client::{Client, LoginState, PortalResponse};
+use biternet_client::{Client, LoginState, PortalResponse};
 
 use crate::state::OnlineInfo;
 use crate::utils::{format_balance, format_flux, humanize_duration};

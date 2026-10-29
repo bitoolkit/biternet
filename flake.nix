@@ -14,7 +14,7 @@
     { self, nixpkgs }:
     let
       workspaceCargoToml = fromTOML (builtins.readFile ./Cargo.toml);
-      packageCargoToml = fromTOML (builtins.readFile ./crates/bitgateway/Cargo.toml);
+      packageCargoToml = fromTOML (builtins.readFile ./crates/biternet/Cargo.toml);
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -53,20 +53,20 @@
           buildInputs = desktopLibraries;
 
           postInstall = ''
-            install -Dm644 crates/bitgateway/assets/icons/icon.png \
-              $out/share/icons/hicolor/256x256/apps/bitgateway.png
-            install -Dm644 crates/bitgateway/assets/bitgateway.desktop \
-              $out/share/applications/bitgateway.desktop
-            wrapProgram "$out/bin/bitgateway" \
+            install -Dm644 crates/biternet/assets/icons/icon.png \
+              $out/share/icons/hicolor/256x256/apps/biternet.png
+            install -Dm644 crates/biternet/assets/biternet.desktop \
+              $out/share/applications/biternet.desktop
+            wrapProgram "$out/bin/biternet" \
               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.xdg-utils ]} \
               --prefix LD_LIBRARY_PATH : "/run/opengl-driver/lib:${pkgs.lib.makeLibraryPath desktopLibraries}"
           '';
 
           meta = {
             inherit (packageCargoToml.package) description;
-            homepage = "https://github.com/bitoolkit/bitgateway";
+            homepage = "https://github.com/bitoolkit/biternet";
             license = pkgs.lib.licenses.mit;
-            mainProgram = "bitgateway";
+            mainProgram = "biternet";
             platforms = pkgs.lib.platforms.linux;
           };
         };
@@ -76,11 +76,11 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          bitgateway = mkPackage pkgs;
+          biternet = mkPackage pkgs;
         in
         {
-          inherit bitgateway;
-          default = bitgateway;
+          inherit biternet;
+          default = biternet;
         }
       );
 
@@ -89,12 +89,12 @@
         let
           app = {
             type = "app";
-            program = nixpkgs.lib.getExe self.packages.${system}.bitgateway;
+            program = nixpkgs.lib.getExe self.packages.${system}.biternet;
             meta.description = packageCargoToml.package.description;
           };
         in
         {
-          bitgateway = app;
+          biternet = app;
           default = app;
         }
       );
@@ -105,7 +105,7 @@
       nixosModules.default = import ./nix/nixos-module.nix self;
 
       overlays.default = final: _prev: {
-        bitgateway = mkPackage final;
+        biternet = mkPackage final;
       };
     };
 }

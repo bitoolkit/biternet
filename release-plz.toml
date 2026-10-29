@@ -3,14 +3,14 @@ git_release_enable = false
 git_tag_enable = false
 
 [[package]]
-name = "bitgateway"
+name = "biternet"
 semver_check = false
-changelog_include = ["bitgateway-client"]
+changelog_include = ["biternet-client"]
 git_release_enable = true
-git_release_name = "BITGATEWAY v{{ version }}"
+git_release_name = "BITERNET v{{ version }}"
 git_tag_enable = true
-git_tag_name = "bitgateway-v{{ version }}"
+git_tag_name = "biternet-v{{ version }}"
 
 [[package]]
-name = "bitgateway-client"
+name = "biternet-client"
 semver_check = true

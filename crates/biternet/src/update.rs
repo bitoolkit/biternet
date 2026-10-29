@@ -3,9 +3,8 @@ use reqwest::header::ACCEPT;
 use semver::Version;
 use serde::Deserialize;
 
-const LATEST_RELEASE_URL: &str =
-    "https://api.github.com/repos/bitoolkit/bitgateway/releases/latest";
-const USER_AGENT: &str = concat!("BITGATEWAY/", env!("CARGO_PKG_VERSION"));
+const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/bitoolkit/biternet/releases/latest";
+const USER_AGENT: &str = concat!("BITERNET/", env!("CARGO_PKG_VERSION"));
 
 #[derive(Clone, Debug)]
 pub struct UpdateInfo {
@@ -53,7 +52,9 @@ pub async fn check_for_update() -> Result<Option<UpdateInfo>> {
 
 fn parse_release_version(tag_name: &str) -> Option<Version> {
     let version = tag_name
-        .strip_prefix("bitgateway-v")
+        .strip_prefix("biternet-v")
+        .or_else(|| tag_name.strip_prefix("biternet-"))
+        .or_else(|| tag_name.strip_prefix("bitgateway-v"))
         .or_else(|| tag_name.strip_prefix("bitgateway-"))
         .or_else(|| tag_name.strip_prefix('v'))
         .unwrap_or(tag_name);

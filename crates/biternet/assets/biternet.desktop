@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=BITGATEWAY
+Name=BITERNET
 Comment=A desktop client for the BIT SRUN gateway
-Exec=bitgateway
-Icon=bitgateway
+Exec=biternet
+Icon=biternet
 Categories=Network;
 Terminal=false

@@ -1,8 +1,8 @@
-# BITGATEWAY
+# BITERNET
 
 [简体中文](./README.md) | English
 
-[![CI](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/bitgateway/actions/workflows/ci.yml)
+[![CI](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml)
 [![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
 
 A desktop client for the BIT campus network. Log in, log out, and view your IP address, data usage, online time, and account balance. The gateway address is `10.0.0.55`.
@@ -13,7 +13,7 @@ Built with Rust and Iced for Windows, macOS, and Linux.
 
 ### Download a release
 
-Download an installer or portable version for your system from [GitHub Releases](https://github.com/bitoolkit/bitgateway/releases).
+Download an installer or portable version for your system from [GitHub Releases](https://github.com/bitoolkit/biternet/releases).
 
 Linux requires a desktop with system tray support (StatusNotifierItem), graphics drivers, and fonts with Chinese glyphs.
 
@@ -22,7 +22,7 @@ Linux requires a desktop with system tray support (StatusNotifierItem), graphics
 With Rust installed, run:
 
 ```sh
-cargo install bitgateway
+cargo install biternet
 ```
 
 On Linux, install the [build dependencies](#linux-dependencies) first.
@@ -32,7 +32,7 @@ On Linux, install the [build dependencies](#linux-dependencies) first.
 Run directly on Linux:
 
 ```sh
-nix run github:bitoolkit/bitgateway
+nix run github:bitoolkit/biternet
 ```
 
 See [NixOS and Home Manager](#nixos-and-home-manager) for startup configuration.
@@ -53,12 +53,18 @@ Use the close button in the top right or press Esc to close the window. The app 
 
 The app checks GitHub Releases on startup. When an update is available, click “有更新” at the bottom of the window to open the download options.
 
+## Upgrading from BITGATEWAY
+
+The app, command, and Cargo package are now named `biternet`, and the protocol library is `biternet-client`. Once the new packages are published, Cargo users can install `biternet`, verify it works, then run `cargo uninstall bitgateway`. Quit the old version from the tray before starting the new one.
+
+For Nix, change the repository URL to `github:bitoolkit/biternet` and rename `inputs.bitgateway` and `services.bitgateway` to `inputs.biternet` and `services.biternet`. The existing configuration directory is retained, so credentials and settings do not need to be moved.
+
 ## NixOS and Home Manager
 
 Add this flake input:
 
 ```nix
-inputs.bitgateway.url = "github:bitoolkit/bitgateway";
+inputs.biternet.url = "github:bitoolkit/biternet";
 ```
 
 NixOS configuration:
@@ -67,9 +73,9 @@ NixOS configuration:
 { inputs, ... }:
 
 {
-  imports = [ inputs.bitgateway.nixosModules.default ];
+  imports = [ inputs.biternet.nixosModules.default ];
 
-  services.bitgateway = {
+  services.biternet = {
     enable = true;
     autoStart = true;
     silentStart = true;
@@ -83,9 +89,9 @@ Home Manager configuration:
 { inputs, ... }:
 
 {
-  imports = [ inputs.bitgateway.homeManagerModules.default ];
+  imports = [ inputs.biternet.homeManagerModules.default ];
 
-  services.bitgateway = {
+  services.biternet = {
     enable = true;
     autoStart = true;
     silentStart = true;
@@ -111,10 +117,10 @@ nix.settings = {
 Install rustup first. The repository selects Rust nightly through `rust-toolchain.toml`. On Linux, install the [build dependencies](#linux-dependencies) first.
 
 ```sh
-git clone https://github.com/bitoolkit/bitgateway.git
-cd bitgateway
+git clone https://github.com/bitoolkit/biternet.git
+cd biternet
 rustup toolchain install nightly
-cargo run -p bitgateway
+cargo run -p biternet
 ```
 
 ### Linux dependencies
@@ -144,16 +150,16 @@ Run these commands from the repository root. Install the packager and build a re
 
 ```sh
 cargo install cargo-packager --version 0.11.8 --locked
-cargo build --release -p bitgateway --locked
+cargo build --release -p biternet --locked
 ```
 
 Choose the command for your current system:
 
 | System | Format | Command |
 | --- | --- | --- |
-| Windows | NSIS installer | `cargo packager --release -p bitgateway --formats nsis` |
-| macOS | .app, DMG | `cargo packager --release -p bitgateway --formats app,dmg` |
-| Linux | AppImage, deb | `cargo packager --release -p bitgateway --formats appimage,deb` |
+| Windows | NSIS installer | `cargo packager --release -p biternet --formats nsis` |
+| macOS | .app, DMG | `cargo packager --release -p biternet --formats app,dmg` |
+| Linux | AppImage, deb | `cargo packager --release -p biternet --formats appimage,deb` |
 
 Linux packaging also requires:
 
@@ -165,14 +171,14 @@ To create an RPM package, install the additional tool:
 
 ```sh
 cargo install cargo-generate-rpm --locked
-cargo generate-rpm -p crates/bitgateway -o dist
+cargo generate-rpm -p crates/biternet -o dist
 ```
 
-Packages are written to `dist/`. The Windows portable executable is at `target/release/bitgateway.exe`.
+Packages are written to `dist/`. The Windows portable executable is at `target/release/biternet.exe`.
 
 ## Acknowledgements
 
-The protocol implementation in `bitgateway-client` is based on [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs).
+The protocol implementation in `biternet-client` is based on [bitsrun-rs](https://github.com/spencerwooo/bitsrun-rs).
 
 ## LICENSE
 

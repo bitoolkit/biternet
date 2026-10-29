@@ -1,5 +1,5 @@
 [package]
-name = "bitgateway"
+name = "biternet"
 version.workspace = true
 edition.workspace = true
 description = "A desktop client for the BIT SRUN gateway"
@@ -10,7 +10,8 @@ keywords = ["bit", "srun"]
 categories = ["gui"]
 
 [package.metadata.packager]
-product-name = "BITGATEWAY"
+product-name = "BITERNET"
+# Keep the installed application identity across the product rename.
 identifier = "dev.so1ve.bitgateway"
 publisher = "Ray"
 category = "Utility"
@@ -32,18 +33,18 @@ depends = [
 ]
 
 [[package.metadata.generate-rpm.assets]]
-source = "target/release/bitgateway"
-dest = "/usr/bin/bitgateway"
+source = "target/release/biternet"
+dest = "/usr/bin/biternet"
 mode = "755"
 
 [[package.metadata.generate-rpm.assets]]
-source = "assets/bitgateway.desktop"
-dest = "/usr/share/applications/bitgateway.desktop"
+source = "assets/biternet.desktop"
+dest = "/usr/share/applications/biternet.desktop"
 mode = "644"
 
 [[package.metadata.generate-rpm.assets]]
 source = "assets/icons/icon.png"
-dest = "/usr/share/icons/hicolor/256x256/apps/bitgateway.png"
+dest = "/usr/share/icons/hicolor/256x256/apps/biternet.png"
 mode = "644"
 
 [package.metadata.generate-rpm.requires]
@@ -61,7 +62,7 @@ xdg-utils = "*"
 [dependencies]
 anyhow.workspace = true
 auto-launch.workspace = true
-bitgateway-client.workspace = true
+biternet-client.workspace = true
 directories.workspace = true
 iced.workspace = true
 image.workspace = true

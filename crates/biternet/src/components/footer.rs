@@ -8,7 +8,7 @@ pub fn view(app: &App) -> Element<'_, Message> {
     let enabled = app.overlay.is_none();
     let mut line = row![
         button(
-            text(concat!("BITGATEWAY v", env!("CARGO_PKG_VERSION")))
+            text(concat!("BITERNET v", env!("CARGO_PKG_VERSION")))
                 .size(11)
                 .height(Fill)
                 .center(),

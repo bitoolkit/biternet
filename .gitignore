@@ -1,7 +1,7 @@
 /target
 /dist
 /dist-*
-/crates/bitgateway/dist
-/crates/bitgateway/dist-*
+/crates/biternet/dist
+/crates/biternet/dist-*
 /result
 .devenv
