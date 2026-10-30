@@ -43,11 +43,13 @@ pub fn view(app: &App) -> Element<'_, Message> {
     let content = match app.overlay {
         Some(Overlay::Settings) => settings::view(app),
         Some(Overlay::Update) => update::view(
+            app,
             app.update_info
                 .as_ref()
                 .expect("update dialog requires an available release"),
         ),
         Some(Overlay::Notice) => feedback::details(
+            app,
             app.notice
                 .as_ref()
                 .expect("notice dialog requires a notice"),

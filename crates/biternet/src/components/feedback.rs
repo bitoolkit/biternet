@@ -1,7 +1,7 @@
 use iced::widget::{button, column, container, row, scrollable, space, text};
 use iced::{Alignment, Element, Fill, Padding};
 
-use crate::app::{Message, Notice, Overlay};
+use crate::app::{App, Message, Notice, Overlay};
 use crate::components::dialog;
 use crate::theme;
 
@@ -45,14 +45,14 @@ pub fn bar(notice: Option<&Notice>) -> Element<'_, Message> {
     .into()
 }
 
-pub fn details(notice: &Notice) -> Element<'_, Message> {
+pub fn details<'a>(app: &'a App, notice: &'a Notice) -> Element<'a, Message> {
     let detail = notice
         .detail
         .as_ref()
         .expect("notice dialog requires details");
 
     column![
-        dialog::header(notice.title, None),
+        dialog::header(notice.title, None, app.drag()),
         space().height(16),
         container(
             scrollable(

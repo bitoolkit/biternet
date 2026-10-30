@@ -50,6 +50,7 @@ pub enum Message {
     WindowClosed(window::Id),
     CloseRequested(window::Id),
     CloseWindow,
+    DragWindow,
     Tray(tray::Action),
 
     UsernameChanged(String),
@@ -163,6 +164,11 @@ impl App {
             Message::CloseWindow => {
                 if let Some(id) = self.window_id {
                     return Task::done(Message::CloseRequested(id));
+                }
+            }
+            Message::DragWindow => {
+                if let Some(id) = self.window_id {
+                    return window::drag(id);
                 }
             }
 
@@ -386,6 +392,11 @@ impl App {
         self.overlay.is_none() && matches!(self.session, Session::Online(_))
     }
 
+    // The borderless window can only be moved by dragging in-app surfaces.
+    pub fn drag(&self) -> Option<Message> {
+        self.window_id.map(|_| Message::DragWindow)
+    }
+
     fn login(&mut self, automatic: bool) -> Task<Message> {
         self.session = Session::LoggingIn { automatic };
         self.manual_logout = false;
@@ -435,12 +446,15 @@ impl App {
         let icon = image::load_from_memory(APP_ICON).unwrap().into_rgba8();
         let icon = window::icon::from_rgba(icon.to_vec(), icon.width(), icon.height()).unwrap();
 
+        // The window is borderless: the in-app header provides the close
+        // button and dragging, so the native title bar is redundant.
         let size = Size::new(252.0, 332.0);
         let (id, open) = window::open(window::Settings {
             size,
             min_size: Some(size),
             max_size: Some(size),
             resizable: false,
+            decorations: false,
             position: window::Position::Centered,
             icon: Some(icon),
             exit_on_close_request: false,

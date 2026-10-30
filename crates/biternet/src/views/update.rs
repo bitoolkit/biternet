@@ -1,14 +1,14 @@
 use iced::widget::{button, column, row, space, text};
 use iced::{Element, Fill};
 
-use crate::app::Message;
+use crate::app::{App, Message};
 use crate::components::dialog;
 use crate::theme::{self, HEADING, MUTED};
 use crate::update::UpdateInfo;
 
-pub fn view(info: &UpdateInfo) -> Element<'_, Message> {
+pub fn view<'a>(app: &'a App, info: &'a UpdateInfo) -> Element<'a, Message> {
     column![
-        dialog::header("发现新版本", None),
+        dialog::header("发现新版本", None, app.drag()),
         space().height(18),
         text(format!("v{}", info.version)).size(26).font(HEADING),
         space().height(6),

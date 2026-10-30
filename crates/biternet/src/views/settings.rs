@@ -23,7 +23,7 @@ pub fn view(app: &App) -> Element<'_, Message> {
     };
 
     column![
-        dialog::header("设置", Some(saved)),
+        dialog::header("设置", Some(saved), app.drag()),
         space().height(16),
         row![
             text("开机启动").size(13).width(Fill),

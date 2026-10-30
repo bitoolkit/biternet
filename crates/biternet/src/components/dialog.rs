@@ -1,5 +1,5 @@
 use iced::widget::{button, container, mouse_area, opaque, row, space, stack, text};
-use iced::{Alignment, Color, Element, Fill};
+use iced::{Alignment, Color, Element, Fill, Padding};
 
 use crate::app::Message;
 use crate::theme::{self, HEADING};
@@ -33,23 +33,41 @@ pub fn view<'a>(base: Element<'a, Message>, content: Element<'a, Message>) -> El
     .into()
 }
 
-pub fn header<'a>(title: &'a str, feedback: Option<Element<'a, Message>>) -> Element<'a, Message> {
-    let mut header = row![text(title).size(18).font(HEADING).width(Fill)]
-        .spacing(8)
+pub fn header<'a>(
+    title: &'a str,
+    feedback: Option<Element<'a, Message>>,
+    drag: Option<Message>,
+) -> Element<'a, Message> {
+    // Only the title strip starts a drag: wrapping the close button would let
+    // its release-on-press trigger alongside the window drag.
+    let mut strip = row![text(title).size(18).font(HEADING)]
+        .padding(Padding {
+            right: 8.0,
+            ..Padding::ZERO
+        })
+        .width(Fill)
         .align_y(Alignment::Center);
 
     if let Some(feedback) = feedback {
-        header = header.push(feedback);
+        strip = strip.push(feedback);
     }
 
-    header
-        .push(
-            button(text("×").size(20).height(Fill).width(Fill).center())
-                .on_press(Message::OverlayOpened(None))
-                .style(theme::quiet_button)
-                .width(28)
-                .height(28)
-                .padding(0),
-        )
-        .into()
+    let mut area = mouse_area(strip);
+
+    if let Some(drag) = drag {
+        area = area.on_press(drag);
+    }
+
+    row![
+        area,
+        button(text("×").size(20).height(Fill).width(Fill).center())
+            .on_press(Message::OverlayOpened(None))
+            .style(theme::quiet_button)
+            .width(28)
+            .height(28)
+            .padding(0),
+    ]
+    .spacing(8)
+    .align_y(Alignment::Center)
+    .into()
 }
