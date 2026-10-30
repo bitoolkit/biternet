@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 repository = "https://github.com/bitoolkit/biternet"
 license = "MIT"
@@ -12,7 +12,7 @@ license = "MIT"
 anyhow = "1"
 auto-launch = "0.6"
 base64 = "0.22"
-biternet-client = { path = "crates/biternet-client", version = "0.2.1" }
+biternet-client = { path = "crates/biternet-client", version = "0.2.2" }
 bon = "3.9"
 directories = "6"
 hmac = "0.12"
