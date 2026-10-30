@@ -1,4 +1,4 @@
-use iced::widget::{button, container, row, space, text};
+use iced::widget::{button, container, mouse_area, row, space, text};
 use iced::{Alignment, Border, Color, Element, Fill};
 
 use crate::app::{App, Message, Overlay};
@@ -14,7 +14,7 @@ pub fn view(app: &App) -> Element<'_, Message> {
         Session::Offline => ("未连接", MUTED, Color::from_rgb8(238, 241, 247)),
     };
 
-    row![
+    let header = row![
         text("校园网").size(18).font(HEADING),
         container(text(label).size(11).color(color))
             .padding([4, 8])
@@ -45,6 +45,9 @@ pub fn view(app: &App) -> Element<'_, Message> {
     ]
     .spacing(8)
     .align_y(Alignment::Center)
-    .height(28)
-    .into()
+    .height(28);
+
+    mouse_area(container(header).padding([14, 16]).width(Fill))
+        .on_press(Message::DragWindow)
+        .into()
 }

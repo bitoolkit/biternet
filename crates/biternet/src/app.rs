@@ -50,6 +50,7 @@ pub enum Message {
     WindowClosed(window::Id),
     CloseRequested(window::Id),
     CloseWindow,
+    DragWindow,
     Tray(tray::Action),
 
     UsernameChanged(String),
@@ -163,6 +164,11 @@ impl App {
             Message::CloseWindow => {
                 if let Some(id) = self.window_id {
                     return Task::done(Message::CloseRequested(id));
+                }
+            }
+            Message::DragWindow => {
+                if let Some(id) = self.window_id {
+                    return window::drag(id);
                 }
             }
 
@@ -441,6 +447,7 @@ impl App {
             min_size: Some(size),
             max_size: Some(size),
             resizable: false,
+            decorations: false,
             position: window::Position::Centered,
             icon: Some(icon),
             exit_on_close_request: false,

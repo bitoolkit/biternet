@@ -23,22 +23,22 @@ pub fn view(app: &App) -> Element<'_, Message> {
         space().into()
     };
 
-    let base = container(column![
-        header::view(app),
-        space().height(14),
+    let body = container(column![
         content,
         container(notice).height(28).center_y(28),
         rule::horizontal(1).style(theme::divider),
         footer::view(app),
     ])
     .padding(Padding {
-        top: 14.0,
+        top: 0.0,
         bottom: 6.0,
         left: 16.0,
         right: 16.0,
     })
     .width(Fill)
     .height(Fill);
+
+    let base = column![header::view(app), body].width(Fill).height(Fill);
 
     let content = match app.overlay {
         Some(Overlay::Settings) => settings::view(app),
