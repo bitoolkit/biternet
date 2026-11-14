@@ -3,7 +3,7 @@
 [简体中文](./README.md) | English
 
 [![CI](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml)
-[![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
+[![Nix Binary Cache](https://img.shields.io/badge/binary_cache-cache.so1ve.dev-blue.svg)](https://cache.so1ve.dev/nix-cache-info)
 
 A desktop client for the BIT campus network. Log in, log out, and view your IP address, data usage, online time, and account balance. The gateway address is `10.0.0.55`.
 
@@ -101,13 +101,13 @@ Home Manager configuration:
 
 `autoStart` starts the app with your graphical session. With `autoStart` enabled, `silentStart` shows only the tray icon. The modules manage startup through a systemd user service. Change these options in your Nix configuration.
 
-Optional Cachix cache configuration:
+Optional binary cache configuration:
 
 ```nix
 nix.settings = {
-  extra-substituters = [ "https://so1ve.cachix.org" ];
+  extra-substituters = [ "https://cache.so1ve.dev" ];
   extra-trusted-public-keys = [
-    "so1ve.cachix.org-1:51jcW4FkJhiLcqPsiUx3nglRP469les8F9zjFxio1nw="
+    "cache.so1ve.dev-1:SijyzF9iE/VZwMXgMpd/HrNX9iItDZ1tdiNdeGakQGY="
   ];
 };
 ```

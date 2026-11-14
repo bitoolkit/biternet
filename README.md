@@ -3,7 +3,7 @@
 简体中文 | [English](./README_EN.md)
 
 [![CI](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml/badge.svg)](https://github.com/bitoolkit/biternet/actions/workflows/ci.yml)
-[![Cachix Cache](https://img.shields.io/badge/cachix-so1ve-blue.svg)](https://so1ve.cachix.org)
+[![Nix Binary Cache](https://img.shields.io/badge/binary_cache-cache.so1ve.dev-blue.svg)](https://cache.so1ve.dev/nix-cache-info)
 
 BIT 校园网桌面客户端，可登录、注销，查看 IP、已用流量、已用时长和账户余额。网关地址为 `10.0.0.55`。
 
@@ -99,13 +99,13 @@ Home Manager 配置：
 
 `autoStart` 随图形会话启动应用。启用后，`silentStart` 可让应用只显示托盘。模块通过 systemd 用户服务管理启动，请在 Nix 配置中修改这些选项。
 
-可选的 Cachix 缓存配置：
+可选的二进制缓存配置：
 
 ```nix
 nix.settings = {
-  extra-substituters = [ "https://so1ve.cachix.org" ];
+  extra-substituters = [ "https://cache.so1ve.dev" ];
   extra-trusted-public-keys = [
-    "so1ve.cachix.org-1:51jcW4FkJhiLcqPsiUx3nglRP469les8F9zjFxio1nw="
+    "cache.so1ve.dev-1:SijyzF9iE/VZwMXgMpd/HrNX9iItDZ1tdiNdeGakQGY="
   ];
 };
 ```
