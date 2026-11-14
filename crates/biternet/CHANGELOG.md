@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/bitoolkit/biternet/compare/biternet-v0.2.2...biternet-v0.2.3) - 2026-11-14
+
+### Other
+
+- migrate Nix cache to GHCR
+
 ## [0.2.2](https://github.com/bitoolkit/biternet/compare/biternet-v0.2.1...biternet-v0.2.2) - 2026-10-30
 
 ### Added
